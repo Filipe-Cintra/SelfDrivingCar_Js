@@ -79,7 +79,7 @@ class GraphEditor {
         }
         if (this.selected) {
             const intent = this.hovered ? this.hovered : this.mouse;
-            new Segment(this.selected, intent).draw(ctx, { dash: [3, 3] });
+            new Segment(this.selected, intent).draw(this.ctx, { dash: [3, 3] });
             this.selected.draw(this.ctx, { outline: true });
         }
     }
