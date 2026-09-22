@@ -55,10 +55,6 @@ function angle(p) {
     return Math.atan2(p.y, p.x);
 }
 
-function lerp(A, B, t) {
-    return A + (B - A) * t;
-}
-
 function getIntersection(A, B, C, D) {
     const tTop = (D.x - C.x) * (A.y - C.y) - (D.y - C.y) * (A.x - C.x);
     const uTop = (C.y - A.y) * (A.x - B.x) - (C.x - A.x) * (A.y - B.y);
@@ -74,6 +70,14 @@ function getIntersection(A, B, C, D) {
     }
 
     return null;
+}
+
+function lerp(A, B, t) {
+    return A + (B - A) * t;
+}
+
+function lerp2D(A, B, t) {
+    return new Point(lerp(A.x, B.x, t), lerp(A.y, B.y, t));
 }
 
 function getRandomColor() {
