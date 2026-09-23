@@ -14,16 +14,19 @@
             <button id="graphBtn" onclick="setMode('graph')">🌐</button>
             <button id="stopBtn" onclick="setMode('stop')">🛑</button>
             <button id="crossingBtn" onclick="setMode('crossing')">🚶‍♂️</button>
+            <button id="startBtn" onclick="setMode('start')">🚙</button>
         </div>
 
         <script  src="js/world.js"></script>
         <script  src="js/viewport.js"></script>
         <script  src="js/markings/marking.js"></script>
         <script  src="js/markings/stop.js"></script>
+        <script  src="js/markings/start.js"></script>
         <script  src="js/markings/crossing.js"></script>
         <script  src="js/editors/markingEditor.js"></script>
         <script  src="js/editors/graphEditor.js"></script>
         <script  src="js/editors/stopEditor.js"></script>
+        <script  src="js/editors/startEditor.js"></script>
         <script  src="js/editors/crossingEditor.js"></script>
         <script  src="js/items/tree.js"></script>
         <script  src="js/items/building.js"></script>
@@ -50,7 +53,8 @@
             const tools = {
                 graph: { button: graphBtn, editor: new GraphEditor(viewport, graph) },
                 stop: { button: stopBtn, editor: new StopEditor(viewport, world) },
-                crossing: { button: crossingBtn, editor: new CrossingEditor(viewport, world) }
+                crossing: { button: crossingBtn, editor: new CrossingEditor(viewport, world) },
+                start: { button: startBtn, editor: new StartEditor(viewport, world) }
             };
 
             let oldGraphHash = graph.hash();
