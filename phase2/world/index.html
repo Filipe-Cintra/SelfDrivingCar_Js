@@ -14,6 +14,7 @@
                 📁
                 <input type="file" id="fileInput" accept=".world" onchange="load(event)"/>
             </label>
+            <button onclick="openOsmPanel()">🗺️</button>
             &nbsp;
             <button id="graphBtn" onclick="setMode('graph')">🌐</button>
             <button id="stopBtn" onclick="setMode('stop')">🛑</button>
@@ -25,6 +26,14 @@
             <button id="startBtn" onclick="setMode('start')">🚙</button>
             <button id="targetBtn" onclick="setMode('target')">🎯</button>
 
+            <div id="osmPanel" style="display: none;">
+                <textarea id="osmDataContainer" rows="10" cols="50"
+                placeholder="Paste OSM data here"></textarea>
+                <div>
+                    <button onclick="parseOsmData()">✔️</button>
+                    <button onclick="closeOsmPanel()">❌</button>
+                </div>
+            </div>
         </div>
 
         <script src="js/world.js"></script>
@@ -50,6 +59,7 @@
         <script src="js/items/building.js"></script>
         <script src="js/math/utils.js"></script>
         <script src="js/math/graph.js"></script>
+        <script src="js/math/osm.js"></script>
         <script src="js/primitives/point.js"></script>
         <script src="js/primitives/segment.js"></script>
         <script src="js/primitives/polygon.js"></script>
@@ -154,6 +164,23 @@
                     tool.button.style.filter = "grayscale(100%)";
                     tool.editor.disable()
                 }
+            }
+
+            function openOsmPanel() {
+                osmPanel.style.display = "block";
+            }
+
+            function closeOsmPanel() {
+                osmPanel.style.display = "none";
+            }
+
+            function parseOsmData() {
+                if (osmDataContainer.value == "") {
+                    alert("Paste data first");
+                    return;
+                }
+                Osm.parseRoads(JSON.parse(osmDataContainer.value));
+                closeOsmPanel();
             }
         </script>
     </body>
