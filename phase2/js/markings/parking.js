@@ -1,8 +1,9 @@
 class Parking extends Marking {
     constructor(center, directionVector, width, height) {
-        super(center, directionVector, width, height)
+        super(center, directionVector, width, height);
 
-        this.borders = [this.poly.segments[0], this.poly.segments[2]]
+        this.borders = [this.poly.segments[0], this.poly.segments[2]];
+        this.type = "parking";
     }
 
     draw(ctx) {
