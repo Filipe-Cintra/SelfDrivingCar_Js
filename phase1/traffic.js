@@ -1,3 +1,10 @@
+// Endless traffic: keeps spawning rows of cars ahead of the player(s) and
+// removes them once they're far behind.
+//
+// Every row leaves at least one lane free, and the free lane can only shift by
+// one lane between consecutive rows, so there is ALWAYS a path through.
+// All traffic drives at the same speed so the rows keep their spacing
+// (mixed speeds would let cars in different lanes drift into a solid wall).
 class TrafficSpawner {
     constructor(road, options = {}) {
         this.road = road;
@@ -21,7 +28,6 @@ class TrafficSpawner {
 
     // frontY / rearY: y of the foremost and rearmost living player car.
     // difficulty: 0..1, shrinks the gaps between rows.
-    
     update(frontY, rearY, difficulty = 0) {
         this.cars.forEach(c => c.update(this.road.borders, []));
         this.cars = this.cars.filter(c => c.y < rearY + this.despawnBehind);
@@ -34,7 +40,7 @@ class TrafficSpawner {
     }
 
     draw(ctx) {
-        this.cars.forEach(c => c.draw(ctx, c.color));
+        this.cars.forEach(c => c.draw(ctx, false)); // traffic never shows sensors, it has none
     }
 
     #nextGap(difficulty) {
@@ -67,8 +73,8 @@ class TrafficSpawner {
     }
 
     #makeCar(lane, y) {
-        const car = new Car(this.road.getLaneCenter(lane), y, 30, 50, "DUMMY", this.speed);
-        car.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+        const color = this.colors[Math.floor(Math.random() * this.colors.length)];
+        const car = new Car(this.road.getLaneCenter(lane), y, 30, 50, "DUMMY", this.speed, color);
         car.update(this.road.borders, []); // builds car.polygon so it can be drawn/sensed immediately
         return car;
     }

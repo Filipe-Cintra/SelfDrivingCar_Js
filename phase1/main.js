@@ -9,16 +9,15 @@ const networkCtx = networkCanvas.getContext("2d");
 
 const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9);
 
+/* ============================== CONFIG ============================== */
 const N = 100;                       // AI population size
 const START_Y = 100;                 // where every car starts
 const MAX_GEN_STEPS = 3600;          // a generation lasts at most this many steps (~60s at 60fps)
 const TRAFFIC_SPEED = 2;
-
 // Anti-crawling rule: traffic spawns ahead and drives at TRAFFIC_SPEED, so a car that just crawls
 // slower than that could never be hit and would "win" by doing nothing. Every PROGRESS_WINDOW steps,
 // a car must have advanced at least MIN_SPEED * PROGRESS_WINDOW pixels or it is eliminated.
 // (It also weeds out cars that spin in circles, sit still or reverse.)
-
 const PROGRESS_WINDOW = 120;
 const MIN_SPEED = TRAFFIC_SPEED + 0.3;
 const CHECKPOINT_STEPS = 600;        // save the best brain mid-generation this often (if it beats the record)
@@ -27,8 +26,9 @@ const RAMP_DISTANCE = 20000;         // distance at which traffic reaches full d
 const SPEED_STEPS = [1, 4, 16];      // AI mode: simulation steps per frame (fast-forward)
 const SHOW_SENSORS_IN_HUMAN_MODE = false;
 
+/* =============================== STATE ============================== */
 // "AI" or "HUMAN". Remembered between reloads. Toggle with the button or the M key,
-
+// or hard-code it here:  let mode = "HUMAN";
 let mode = localStorage.getItem("mode") === "HUMAN" ? "HUMAN" : "AI";
 let speedIndex = 0;
 
@@ -48,6 +48,7 @@ buildControls();
 startMode();
 requestAnimationFrame(animate);
 
+/* ============================= GAME LOOP ============================ */
 function animate(time) {
     const steps = mode == "AI" ? SPEED_STEPS[speedIndex] : 1;
     for (let i = 0; i < steps; i++) {
@@ -90,7 +91,7 @@ function distanceOf(car) {
     return Math.max(0, START_Y - car.y);
 }
 
-// Human-mode
+/* ============================ HUMAN MODE ============================ */
 function stepHuman() {
     if (player.damaged) return;              // game over: wait for restart
 
@@ -111,7 +112,7 @@ function restartHuman() {
     focusCar = player;
 }
 
-// AI-mode
+/* ============================== AI MODE ============================= */
 function stepAI() {
     const running = stepWorld(aiCars);
     genStep++;
@@ -196,6 +197,7 @@ function mutationFor(i) {
     return 1;
 }
 
+/* ============================== STORAGE ============================= */
 function loadBrain() {
     const s = localStorage.getItem("bestBrain");
     return s ? JSON.parse(s) : null;
@@ -215,6 +217,7 @@ function cloneBrain(brain) {
     return JSON.parse(JSON.stringify(brain));
 }
 
+// Manual buttons from the tutorial still work.
 function save() {
     if (mode != "AI") return;
     const best = bestOfGeneration();
@@ -232,12 +235,11 @@ function discard() {
     if (mode == "AI") startGeneration();
 }
 
-
-
+/* ============================== HELPERS ============================= */
 function generateCars(N) {
     const cars = [];
     for (let i = 0; i < N; i++) {
-        cars.push(new Car(road.getLaneCenter(1), START_Y, 30, 50, "AI"));
+        cars.push(new Car(road.getLaneCenter(1), START_Y, 30, 50, "AI", 3, "blue"));
     }
     return cars;
 }
@@ -252,13 +254,14 @@ function resetCar(car) {
     car.windowStart = 0;
 }
 
+/* ============================ MODE SWITCH =========================== */
 function startMode() {
     networkCanvas.style.display = mode == "AI" ? "" : "none";
     if (mode == "AI") {
         startGeneration();
     } else {
         if (!player) {
-            player = new Car(road.getLaneCenter(1), START_Y, 30, 50, "KEYS");
+            player = new Car(road.getLaneCenter(1), START_Y, 30, 50, "KEYS", 3, "blue");
         }
         restartHuman();
     }
@@ -284,6 +287,7 @@ document.addEventListener("keydown", e => {
     }
 });
 
+/* ================================ UI ================================ */
 function buildControls() {
     const bar = document.createElement("div");
     bar.style.cssText = "position:fixed;top:10px;left:10px;display:flex;gap:6px;z-index:10;";
@@ -315,7 +319,7 @@ function refreshButtons() {
     speedBtn.style.display = mode == "AI" ? "" : "none";
 }
 
-
+/* ============================== DRAWING ============================= */
 function draw(time) {
     carCanvas.height = window.innerHeight;       // (re)setting the size also clears the canvas
     networkCanvas.height = window.innerHeight;
@@ -329,12 +333,14 @@ function draw(time) {
     if (mode == "AI") {
         carCtx.globalAlpha = 0.2;
         for (let i = 0; i < aiCars.length; i++) {
-            aiCars[i].draw(carCtx, "blue");
+            if (aiCars[i] !== focusCar) {
+                aiCars[i].draw(carCtx, false);       // dim, no sensor
+            }
         }
         carCtx.globalAlpha = 1;
-        focusCar.draw(carCtx, "blue", true);
+        focusCar.draw(carCtx, true);                 // only the selected car shows its sensor
     } else {
-        player.draw(carCtx, "blue", SHOW_SENSORS_IN_HUMAN_MODE);
+        player.draw(carCtx, SHOW_SENSORS_IN_HUMAN_MODE);
     }
     carCtx.restore();
 
